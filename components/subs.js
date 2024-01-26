@@ -8,6 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
+import api from "../connection/api";
 
 export default function Subs() {
   const [ingredient, setIngredient] = useState("");
@@ -105,20 +106,38 @@ export default function Subs() {
     // Add more ingredients and their substitutes as needed
   };
   const findSubstitute = () => {
-    const formattedIngredient = ingredient.trim().toLowerCase(); // Remove extra spaces and convert to lowercase
-    const substitute = substitutesData[formattedIngredient];
+    api
+      .get(`myapp/api/ingredient/get/${ingredient.trim().toLowerCase()}`)
+      .then((response) => {
+        Alert.alert(
+          "Substitute Found",
+          `For ${ingredient.trim()}, you can use ${
+            response.data.substitutesIngredients
+          }.`
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert(
+          "Substitute Not Found",
+          `Sorry, no substitute found for ${ingredient}.`
+        );
+      });
 
-    if (substitute) {
-      Alert.alert(
-        "Substitute Found",
-        `For ${ingredient}, you can use ${substitute}.`
-      );
-    } else {
-      Alert.alert(
-        "Substitute Not Found",
-        `Sorry, no substitute found for ${ingredient}.`
-      );
-    }
+    // const formattedIngredient = ingredient.trim().toLowerCase(); // Remove extra spaces and convert to lowercase
+    // const substitute = substitutesData[formattedIngredient];
+
+    // if (substitute) {
+    //   Alert.alert(
+    //     "Substitute Found",
+    //     `For ${ingredient}, you can use ${substitute}.`
+    //   );
+    // } else {
+    //   Alert.alert(
+    //     "Substitute Not Found",
+    //     `Sorry, no substitute found for ${ingredient}.`
+    //   );
+    // }
   };
 
   return (

@@ -11,20 +11,35 @@ import Subs from "./components/subs";
 import Schedule from "./components/schedule";
 import Scanner from "./components/scanner";
 import DishDetails from "./components/dishDetails";
+import { useEffect, useState } from "react";
+import { getData } from "./localStorage/localStorage";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="signup">
+      <Stack.Navigator
+        initialRouteName={getData("TOKEN") !== "" ? "default" : "login"}
+      >
         <Stack.Screen name="login" component={Login} />
         <Stack.Screen name="signup" component={Signup} />
         <Stack.Screen name="default" component={HomePage} />
         <Stack.Screen name="searchrecipe" component={SearchRecipe} />
         <Stack.Screen name="subs" component={Subs} />
         <Stack.Screen name="schedule" component={Schedule} />
-        <Stack.Screen name="scanner" component={Scanner} />
+        <Stack.Screen
+          name="scanner"
+          component={Scanner}
+          options={{
+            // headerShown: false,
+            title: "Scanner", // Set a custom header title
+            headerStyle: {
+              backgroundColor: "black",
+            },
+            headerTintColor: "white",
+          }}
+        />
         <Stack.Screen name="DishDetails" component={DishDetails} />
       </Stack.Navigator>
     </NavigationContainer>

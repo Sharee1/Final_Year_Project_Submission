@@ -8,6 +8,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
+import api from "../connection/api";
 
 export default function SearchRecipe({ navigation }) {
   const [searchText, setSearchText] = useState("");
@@ -24,28 +25,23 @@ export default function SearchRecipe({ navigation }) {
     // Add more dishes as needed
   ];
 
-  const navigateToDetails = (dish) => {
-    navigation.navigate("DishDetails", dish);
-  };
-
   const handleSearch = () => {
-    const searchedDish = dishes.find(
-      (dish) => dish.name.toLowerCase() === searchText.toLowerCase()
-    );
-
-    if (searchedDish) {
-      navigateToDetails(searchedDish);
-      setShowDetails(true);
-      setFoundDish(searchedDish);
-    } else {
-      // Handle case when dish is not found
-      setShowDetails(false);
-      setFoundDish(null);
-      Alert.alert(
-        "Dish Not Found",
-        "Sorry, the dish you searched for is not in our database."
-      );
-    }
+    api
+      .get(`myapp/api/recipe/getrecipe/${searchText.toLowerCase()}`)
+      .then((response) => {
+        const DishDetails = response.data;
+        navigation.navigate("DishDetails", { DishDetails });
+      })
+      .catch((error) => {
+        console.log(error);
+        // Handle case when dish is not found
+        setShowDetails(false);
+        setFoundDish(null);
+        Alert.alert(
+          "Dish Not Found",
+          "Sorry, the dish you searched for is not in our database."
+        );
+      });
   };
 
   return (

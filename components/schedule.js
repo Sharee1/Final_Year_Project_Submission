@@ -59,7 +59,7 @@ export default function Schedule() {
 
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
-        mode="time"
+        mode="datetime"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />

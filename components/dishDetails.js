@@ -3,13 +3,23 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 export default function DishDetails({ route }) {
-  const { name, description, ingredients } = route.params;
+  const { DishDetails } = route.params;
 
+  // console.log(DishDetails);
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>{name}</Text>
-      <Text style={styles.description}>{description}</Text>
-      <Text style={styles.ingredients}>{ingredients}</Text>
+      <Text style={styles.name}>{DishDetails.recipeName}</Text>
+      <Text style={styles.description}>
+        Description: {DishDetails.description}
+      </Text>
+      <Text style={styles.ingredients}>
+        Total Ingredients: {DishDetails.totalIngredients}
+      </Text>
+      <Text style={styles.ingredients}> </Text>
+      <Text style={styles.ingredients}>Ingredients: </Text>
+      {DishDetails.ingredientsRequired.map((item) => {
+        return <Text style={styles.ingredients}>{item}</Text>;
+      })}
     </View>
   );
 }

@@ -1,26 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, Button, TouchableOpacity } from "react-native";
+import api from "../connection/api";
+import { getData, saveData } from "../localStorage/localStorage";
+import { useNavigation } from "@react-navigation/native";
 
 const Login = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const handleUsernameChange = (text) => {
+    setUsername(text.toLowerCase());
+  };
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+  };
+
+  const handleLogin = () => {
+    api
+      .post("myapp/api/auth/signin", { username, password })
+      .then((response) => {
+        const token = response.data.token;
+        saveData("TOKEN", token);
+        navigation.navigate("default");
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.Welcometext}>Welcome ! </Text>
       <Text style={styles.Signtext}>Sign into Continue</Text>
       <Text style={styles.usernamehead}>Username</Text>
-      <TextInput style={styles.inputuser} placeholder="Enter Your Name">
-        {" "}
-      </TextInput>
+      <TextInput
+        style={styles.inputuser}
+        placeholder="Enter Your Name"
+        onChangeText={(text) => handleUsernameChange(text)}
+      ></TextInput>
       <Text style={styles.Passwordhead}>Password</Text>
-      <TextInput style={styles.inputpassword} placeholder="Enter Your Password">
-        {" "}
-      </TextInput>
+      <TextInput
+        style={styles.inputpassword}
+        placeholder="Enter Your Password"
+        onChangeText={(text) => handlePasswordChange(text)}
+      ></TextInput>
       {/* <Text style={styles.Forgot}>Forgot Password ? </Text> */}
       <View style={styles.buttonContainer}>
-        <Button
-          title="Login"
-          color="#f5d90a"
-          onPress={() => navigation.navigate("default")}
-        />
+        <Button title="Login" color="#f5d90a" onPress={handleLogin} />
       </View>
       <TouchableOpacity
         onPress={() => navigation.navigate("signup")}
