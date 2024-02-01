@@ -7,23 +7,27 @@ import {
   ScrollView,
   Button,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { Camera } from "expo-camera";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
-
 import { useWindowDimensions } from "react-native";
-
 import { LogBox } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import axios from "axios";
 LogBox.ignoreAllLogs();
 
-export default function Scanner() {
+export default function Scanner({ navigation }) {
   const { width } = useWindowDimensions();
   const height = Math.round((width * 16) / 9);
   const [hasPermission, setHasPermission] = useState(null);
   const cameraRef = useRef(null);
   const [images, setImages] = useState([]);
+  const [fetchedIngredients, setFetchedIngredients] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [image, setImage] = useState();
 
   useEffect(() => {
     (async () => {
@@ -36,32 +40,65 @@ export default function Scanner() {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync();
       setImages([...images, photo.uri]);
+      setImage(photo);
     }
   };
 
-  // if (hasPermission === null) {
-  //   return <View />;
-  // }
-  // if (hasPermission === false) {
-  //   return <Text>No access to camera</Text>;
-  // }
+  useEffect(() => {
+    if (fetchedIngredients) {
+      console.log("Fetched Ingredients: ", JSON.stringify(fetchedIngredients));
+      if (fetchedIngredients.length !== 0) {
+        navigation.navigate("recipesByIngredients", { fetchedIngredients });
+      }
+    }
+  }, [fetchedIngredients]);
 
-  // const handleBarCodeScanned = ({ data }) => {
-  //   setScanned(true);
-  //   // Handle scanned data here, such as sending it to your backend.
-  //   alert(`Food item with barcode ${data} has been scanned!`);
-  // };
+  useEffect(() => {
+    console.log("Images: ", JSON.stringify(images));
+  }, [images]);
 
-  // const startScanning = () => {
-  //   setScanned(false);
-  // };
+  const startFetchingIngredients = async () => {
+    try {
+      setLoading(true);
+      const list = [];
+      for (let i = 0; i < images.length; i++) {
+        const ingredient = await uploadImage(images[i]);
+        list.push(ingredient.predicted_class);
+      }
+      setFetchedIngredients(list);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
 
-  // if (hasPermission === null) {
-  //   return <Text>Requesting camera permission</Text>;
-  // }
-  // if (hasPermission === false) {
-  //   return <Text>No access to camera</Text>;
-  // }
+  const uploadImage = async (uri) => {
+    try {
+      const imageData = {
+        uri: uri,
+        type: "image/jpeg",
+        name: "image.jpg",
+      };
+
+      const formData = new FormData();
+      formData.append("image", imageData);
+
+      const response = await axios.post("http://10.0.2.2:5000/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(
+        "Image upload successful, Ingredient Fetched: ",
+        response.data
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null; // or handle error condition
+    }
+  };
 
   const selectImage = async () => {
     const status = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
@@ -80,6 +117,15 @@ export default function Scanner() {
     }
     setImages([...images, ...newImages]);
   };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="blue" />
+        <Text style={{ padding: 10 }}>Searching Recipes</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -123,7 +169,7 @@ export default function Scanner() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              // onPress={startScanning}
+              onPress={startFetchingIngredients}
               style={[styles.button, { backgroundColor: "#9CDE46" }]}
             >
               <Image
@@ -131,13 +177,6 @@ export default function Scanner() {
                 style={{ width: 55, height: 55 }}
               />
             </TouchableOpacity>
-
-            {/* <TouchableOpacity onPress={startScanning} style={styles.button}>
-              <Image
-                source={require("../assets/qr-scan.png")}
-                style={{ width: 40, height: 40 }}
-              />
-            </TouchableOpacity> */}
           </View>
         </View>
       </Camera>

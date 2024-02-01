@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import api from "../connection/api";
 import { getData, saveData } from "../localStorage/localStorage";
+import { StatusBar } from "expo-status-bar";
 
 export default function Default({ navigation }) {
   const fetchDataWithAuthentication = async () => {
@@ -29,27 +30,20 @@ export default function Default({ navigation }) {
   };
 
   useEffect(() => {
-    fetchDataWithAuthentication();
+    // fetchDataWithAuthentication();
   });
+
   return (
     <View style={styles.container}>
+      <StatusBar style="black" />
+
       <View
         style={{
           color: "pink",
           width: "100%",
           alignItems: "flex-end",
         }}
-      >
-        <TouchableOpacity
-          style={styles.logoutBtn}
-          onPress={() => {
-            saveData("TOKEN", "");
-            navigateToModule("login");
-          }}
-        >
-          <Text style={styles.moduleText}>Log out</Text>
-        </TouchableOpacity>
-      </View>
+      ></View>
       <View style={styles.grid}>
         {/* Scan Item */}
         <TouchableOpacity
@@ -90,8 +84,9 @@ export default function Default({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: "center",
+    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "white",
   },
   grid: {
     flexDirection: "row",

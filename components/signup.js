@@ -35,7 +35,7 @@ export default function Signup({ navigation }) {
   };
 
   return (
-    <View>
+    <View style={{ backgroundColor: "white", flex: 1 }}>
       <Text style={styles.heading}>Getting Started!</Text>
 
       <Text style={styles.subheading}>Create an account to Continue</Text>
@@ -61,12 +61,21 @@ export default function Signup({ navigation }) {
         onChangeText={(text) => handlePasswordChange(text)}
       />
 
-      <TouchableOpacity onPress={() => navigation.navigate("login")}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate("login")}>
         <Text style={styles.existingAccountText}>Already have an Account?</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.signupText}>Signup</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button2}
+        onPress={() => navigation.navigate("login")}
+      >
+        <Text style={[styles.signupText, { color: "black" }]}>
+          Already have an Account?
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -77,30 +86,43 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "bold",
     marginTop: 40,
-    marginLeft: 19,
+    marginLeft: 17,
   },
   subheading: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    marginTop: -3,
+    color: "grey",
     marginLeft: 19,
   },
   label: {
-    fontSize: 20,
+    fontSize: 16,
+    marginBottom: 5,
     fontWeight: "bold",
-    marginTop: 40,
+    marginTop: 20,
     marginLeft: 20,
     color: "grey",
   },
+  // input: {
+  //   fontWeight: "bold",
+  //   marginTop: 10,
+  //   marginLeft: 20,
+  //   color: "grey",
+  //   borderWidth: 1.4,
+  //   borderRadius: 3,
+  //   width: 350,
+  //   height: 30,
+  // },
   input: {
-    fontWeight: "bold",
-    marginTop: 10,
-    marginLeft: 20,
-    color: "grey",
-    borderWidth: 1.4,
-    borderRadius: 3,
-    width: 350,
-    height: 30,
+    // width: "100%",
+    height: 45,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    backgroundColor: "white",
+    borderRadius: 5,
+    fontSize: 16,
+    // marginBottom: 10,
+    marginHorizontal: 20,
   },
   existingAccountText: {
     fontSize: 18,
@@ -109,24 +131,43 @@ const styles = StyleSheet.create({
     marginLeft: 160,
     color: "grey",
   },
+  // button: {
+  //   borderWidth: 1.4,
+  //   borderRadius: 3,
+  //   width: 350,
+  //   height: 30,
+  //   alignSelf: "center",
+  //   backgroundColor: "yellow",
+  //   height: 50,
+  //   width: 150,
+  //   borderRadius: 45,
+  //   borderRadius: 10,
+  //   marginTop: 60,
+  // },
   button: {
-    borderWidth: 1.4,
-    borderRadius: 3,
-    width: 350,
-    height: 30,
-    alignSelf: "center",
-    backgroundColor: "yellow",
-    height: 50,
-    width: 150,
-    borderRadius: 45,
-    borderRadius: 10,
-    marginTop: 60,
+    backgroundColor: "blue",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 5,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginVertical: 10,
   },
   signupText: {
-    fontSize: 40,
+    // fontSize: 40,
     fontWeight: "bold",
-    marginTop: -55,
     alignSelf: "center",
-    color: "grey",
+    color: "white",
+  },
+  button2: {
+    // width: "100%",
+    height: 45,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#cccccc",
+    borderRadius: 5,
+    fontSize: 16,
+    marginVertical: 10,
+    marginHorizontal: 20,
   },
 });

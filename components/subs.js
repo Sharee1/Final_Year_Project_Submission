@@ -161,26 +161,39 @@ export default function Subs() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 16,
+    backgroundColor: "white",
+
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   heading: {
     fontSize: 20,
     marginBottom: 16,
   },
+  // input: {
+  //   height: 40,
+  //   width: 200,
+  //   borderColor: "gray",
+  //   borderWidth: 1,
+  //   marginBottom: 16,
+  //   paddingLeft: 8,
+  // },
   input: {
-    height: 40,
-    width: 200,
-    borderColor: "gray",
+    width: "100%",
+    height: 45,
+    padding: 10,
     borderWidth: 1,
-    marginBottom: 16,
-    paddingLeft: 8,
+    borderColor: "#cccccc",
+    borderRadius: 5,
+    fontSize: 16,
+    marginBottom: 10,
   },
   button: {
     backgroundColor: "blue",
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 5,
   },
   buttonText: {
     color: "white",

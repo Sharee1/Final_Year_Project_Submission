@@ -17,8 +17,12 @@ export default function DishDetails({ route }) {
       </Text>
       <Text style={styles.ingredients}> </Text>
       <Text style={styles.ingredients}>Ingredients: </Text>
-      {DishDetails.ingredientsRequired.map((item) => {
-        return <Text style={styles.ingredients}>{item}</Text>;
+      {DishDetails.ingredientsRequired.map((item, index) => {
+        return (
+          <Text key={index} style={styles.ingredients}>
+            {item}
+          </Text>
+        );
       })}
     </View>
   );
@@ -28,6 +32,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "white",
   },
   name: {
     fontSize: 24,
