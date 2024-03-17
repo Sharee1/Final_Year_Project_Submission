@@ -5,17 +5,21 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Alert,
+  ImageBackground,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { getData } from "../localStorage/localStorage";
 import api from "../connection/api";
 import { ScrollView } from "react-native-gesture-handler";
+import { useNavigation } from '@react-navigation/native';
 
 export default function Schedule() {
-  const [foodName, setfoodName] = useState("");
+  const [foodName, setFoodName] = useState("");
   const [schedule, setSchedule] = useState([]);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const navigation = useNavigation(); 
 
   useEffect(() => {
     getAllMeals();
@@ -34,24 +38,29 @@ export default function Schedule() {
     setSelectedDate(date);
   };
 
-  const addMeal = () => {
+  const addMeal = async () => {
     if (foodName && selectedDate) {
-      console.log(selectedDate);
-      fetchDataWithAuthentication();
+      const token = await getTokenData();
+      if (!token) {
+        Alert.alert(
+          "Error",
+          "Your session has expired. Please log in again.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate('Login'),
+            },
+          ]
+        );
+        return;
+      }
+      fetchDataWithAuthentication(token);
+    } else {
+      Alert.alert("Error", "Please enter a meal name and select a date.");
     }
   };
 
-  const getTokenData = async () => {
-    try {
-      const tokenData = await getData("TOKEN");
-      return tokenData;
-    } catch (error) {
-      console.error("Error fetching token data:", error);
-    }
-  };
-
-  const fetchDataWithAuthentication = async () => {
-    const token = await getTokenData();
+  const fetchDataWithAuthentication = async (token) => {
     const dateTime = JSON.stringify(selectedDate).slice(1, 11) + "T18:00:00";
     try {
       const response = await api.post(
@@ -64,9 +73,21 @@ export default function Schedule() {
         }
       );
       getAllMeals();
-      console.log("Data Saved successfully:");
+      scheduleNotification();
+      Alert.alert("Success", "Meal added successfully!");
+      console.log("Data Saved successfully:", response.data);
     } catch (error) {
       console.log("Error fetching data:", error.response.data);
+      Alert.alert("Error", "Failed to add meal. Please try again.");
+    }
+  };
+
+  const getTokenData = async () => {
+    try {
+      const tokenData = await getData("TOKEN");
+      return tokenData;
+    } catch (error) {
+      console.error("Error fetching token data:", error);
     }
   };
 
@@ -78,7 +99,7 @@ export default function Schedule() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Data Retrieved: ", response.data);
+      console.log("Data Retrieved:", response.data);
       setSchedule(response.data);
     } catch (error) {
       console.log("Error fetching data:", error.response.data);
@@ -87,9 +108,7 @@ export default function Schedule() {
 
   const deleteMeal = async (id) => {
     const token = await getTokenData();
-    console.log(token, `/myapp/api/delete/id/${id}`);
     try {
-      console.log("1");
       const response = await api.post(
         `/myapp/api/delete/id/${id}`,
         {},
@@ -100,10 +119,16 @@ export default function Schedule() {
         }
       );
       getAllMeals();
-      console.log("Deleted Meal successfully: ", response.data);
+      Alert.alert("Success", "Meal deleted successfully!");
+      console.log("Deleted Meal successfully:", response.data);
     } catch (error) {
       console.log("Error fetching data:", error.response.data);
+      Alert.alert("Error", "Failed to delete meal. Please try again.");
     }
+  };
+
+  const scheduleNotification = async () => {
+    // Code to schedule notification goes here
   };
 
   const convertDateTime = (date) => {
@@ -113,58 +138,62 @@ export default function Schedule() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Schedule Your Meals</Text>
-      <View style={{ flexDirection: "row", justifyContent: "center" }}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Meal Name"
-          value={foodName}
-          onChangeText={(text) => setfoodName(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={showDatePicker}>
-          <Text style={[styles.buttonText, { color: "black" }]}>
-            {selectedDate ? selectedDate.toLocaleTimeString() : "Select Time"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.button1} onPress={addMeal}>
-        <Text style={styles.buttonText}>Add Meal</Text>
-      </TouchableOpacity>
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="datetime"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
-      {schedule.length > 0 && (
-        <View style={styles.scheduleContainer}>
-          <Text style={styles.scheduleHeading}>Your Schedule:</Text>
-          {schedule.map((item, index) => (
-            <View style={styles.scheduleItem} key={index}>
-              <View>
-                <Text style={{ fontWeight: "bold" }}>{item.foodName}</Text>
-                <Text style={{ color: "grey" }}>
-                  {convertDateTime(item.dateTime).toLocaleTimeString()} on{" "}
-                  {convertDateTime(item.dateTime).toLocaleDateString()}
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => deleteMeal(item.id)}
-                style={{
-                  backgroundColor: "#efefef",
-                  padding: 10,
-                  borderRadius: 5,
-                }}
-              >
-                <Text style={{ color: "black" }}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+    <ImageBackground
+      source={require("../assets/bb.jpg")}
+      style={styles.backgroundImage}
+    >
+      <ScrollView style={styles.container}>
+        <Text style={styles.heading}>Welcome to Meal Scheduler</Text>
+        <Text style={styles.description}>
+          Schedule your meals and never miss a delicious dish!
+        </Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Meal Name"
+            placeholderTextColor="white"
+            value={foodName}
+            onChangeText={setFoodName}
+          />
+          <TouchableOpacity style={styles.button} onPress={showDatePicker}>
+            <Text style={styles.buttonText}>
+              {selectedDate ? selectedDate.toLocaleTimeString() : "Select Time"}
+            </Text>
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+        <TouchableOpacity style={styles.button1} onPress={addMeal}>
+          <Text style={styles.buttonText}>Add Meal</Text>
+        </TouchableOpacity>
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleConfirm}
+          onCancel={hideDatePicker}
+        />
+        {schedule.length > 0 && (
+          <View style={styles.scheduleContainer}>
+            <Text style={styles.scheduleHeading}>Your Schedule:</Text>
+            {schedule.map((item, index) => (
+              <View style={styles.scheduleItem} key={index}>
+                <View>
+                  <Text style={styles.mealName}>{item.foodName}</Text>
+                  <Text style={styles.dateTime}>
+                    {convertDateTime(item.dateTime).toLocaleTimeString()} on{" "}
+                    {convertDateTime(item.dateTime).toLocaleDateString()}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => deleteMeal(item.id)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={{ color: "white" }}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
@@ -172,24 +201,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "white",
-    // justifyContent: "center",
-    // alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 10,
+    textAlign: "center",
+    color: "white",
+  },
+  description: {
+    fontSize: 18,
+    color: "white",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
   },
   input: {
     height: 45,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#cccccc",
+    borderColor: "white",
     borderRadius: 5,
     fontSize: 16,
     flex: 1,
-    // marginBottom: 5,
+    color: "white",
   },
   button: {
     backgroundColor: "#efefef",
@@ -206,7 +252,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonText: {
-    color: "white",
+    color: "black",
     fontSize: 16,
     textAlign: "center",
   },
@@ -214,20 +260,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   scheduleHeading: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
+    textAlign: "center",
+    color: "white",
   },
   scheduleItem: {
     flexDirection: "row",
-    // height: 45,
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
     borderWidth: 1,
-    borderColor: "#cccccc",
+    borderColor: "white",
     borderRadius: 5,
     fontSize: 16,
     marginBottom: 10,
+  },
+  mealName: {
+    fontWeight: "bold",
+    color: "white",
+  },
+  dateTime: {
+    color: "white",
+  },
+  deleteButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
   },
 });

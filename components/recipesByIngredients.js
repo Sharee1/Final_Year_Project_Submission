@@ -11,8 +11,8 @@ import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const RecipesByIngredients = ({ route, navigation }) => {
   const { fetchedIngredients } = route.params;
-  const ingredients = ["Butter"]; //Dymmy Data
-  // const ingredients = fetchedIngredients; // Data Fetched from api
+  // const ingredients = ["Butter"]; //Dymmy Data
+  const ingredients = fetchedIngredients; // Data Fetched from api
 
   const [recipesList, setRecipesList] = useState([]);
 

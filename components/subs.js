@@ -1,4 +1,3 @@
-// Subs.js
 import React, { useState } from "react";
 import {
   View,
@@ -7,105 +6,22 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  Animated,
+  Image,
 } from "react-native";
 import api from "../connection/api";
 
 export default function Subs() {
   const [ingredient, setIngredient] = useState("");
-  const substitutesData = {
-    tomato: "bell pepper",
-    onion: "green onion",
-    garlic: "shallot",
-    cilantro: "parsley",
-    sugar: "honey",
-    flour: "almond flour",
-    butter: "coconut oil",
-    milk: "soy milk",
-    eggs: "applesauce",
-    chocolate: "cocoa nibs",
-    garlic: "garlic powder",
-    oliveoil: "avocado oil",
-    salt: "sea salt",
-    pepper: "cayenne pepper",
-    bakingpowder: "yeast",
-    yogurt: "coconut yogurt",
-    onions: "shallots",
-    lemonjuice: "white vinegar",
-    brownsugar: "maple syrup",
-    vanillaextract: "almond extract",
-    cinnamon: "nutmeg",
-    cilantro: "parsley",
-    sourcream: "greek yogurt",
-    shrimp: "tofu",
-    beef: "turkey",
-    mayonnaise: "greek yogurt",
-    soysauce: "tamari",
-    mustard: "dijon mustard",
-    thyme: "rosemary",
-    basil: "oregano",
-    paprika: "cayenne pepper",
-    heavycream: "coconut cream",
-    rice: "quinoa",
-    pasta: "zucchini noodles",
-    cornstarch: "arrowroot powder",
-    chicken: "turkey",
-    cheese: "nutritional yeast",
-    coconutmilk: "almond milk",
-    peanutbutter: "almond butter",
-    maplesyrup: "agave nectar",
-    dill: "tarragon",
-    cheddarcheese: "monterey jack cheese",
-    broccoli: "cauliflower",
-    cranberries: "raisins",
-    cumin: "coriander",
-    cayennepepper: "paprika",
-    honey: "sugar",
-    almondflour: "flour",
-    soymilk: "milk",
-    applesauce: "eggs",
-    cocoanibs: "chocolate",
-    sundriedtomatoes: "tomatoes",
-    garlicpowder: "garlic",
-    avocadooil: "olive oil",
-    seasalt: "salt",
-    cayennepepper: "pepper",
-    yeast: "baking powder",
-    coconutyogurt: "yogurt",
-    shallots: "onions",
-    whitevinegar: "lemon juice",
-    maplesyrup: "brown sugar",
-    almondextract: "vanilla extract",
-    nutmeg: "cinnamon",
-    parsley: "cilantro",
-    greekyogurt: "sour cream",
-    tofu: "shrimp",
-    groundturkey: "ground beef",
-    greekyogurt: "mayonnaise",
-    tamari: "soysauce",
-    dijonmustard: "mustard",
-    rosemary: "thyme",
-    oregano: "basil",
-    cayennepepper: "paprika",
-    coconutcream: "heavy cream",
-    quinoa: "rice",
-    zucchininoodles: "pasta",
-    arrowrootpowder: "cornstarch",
-    cherrytomatoes: "bell peppers",
-    groundturkey: "ground chicken",
-    chives: "green onions",
-    nutritionalyeast: "parmesan cheese",
-    almondmilk: "coconut milk",
-    almondbutter: "peanut butter",
-    agavenectar: "maple syrup",
-    tarragon: "dill",
-    cauliflower: "broccoli",
-    raisins: "cranberries",
-    coriander: "cumin",
-    paprika: "cayenne pepper",
+  const [error, setError] = useState("");
+  const [animation] = useState(new Animated.Value(1));
 
-    // Add more ingredients and their substitutes as needed
-  };
   const findSubstitute = () => {
+    if (!ingredient.trim()) {
+      setError("Please enter an ingredient");
+      return;
+    }
+
     api
       .get(`myapp/api/ingredient/get/${ingredient.trim().toLowerCase()}`)
       .then((response) => {
@@ -115,6 +31,7 @@ export default function Subs() {
             response.data.substitutesIngredients
           }.`
         );
+        setError("");
       })
       .catch((error) => {
         console.log(error);
@@ -122,38 +39,57 @@ export default function Subs() {
           "Substitute Not Found",
           `Sorry, no substitute found for ${ingredient}.`
         );
+        setError("");
       });
+  };
 
-    // const formattedIngredient = ingredient.trim().toLowerCase(); // Remove extra spaces and convert to lowercase
-    // const substitute = substitutesData[formattedIngredient];
-
-    // if (substitute) {
-    //   Alert.alert(
-    //     "Substitute Found",
-    //     `For ${ingredient}, you can use ${substitute}.`
-    //   );
-    // } else {
-    //   Alert.alert(
-    //     "Substitute Not Found",
-    //     `Sorry, no substitute found for ${ingredient}.`
-    //   );
-    // }
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(animation, {
+        toValue: 0.8,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Find Ingredient Substitute</Text>
+  
+      <View style={styles.header}>
+        <Text style={styles.heading}>Explore Exciting Ingredient Substitutes</Text>
+        <Text style={styles.subheading}>
+          Discover new flavors with alternative ingredients!
+        </Text>
+        <Text style={styles.subheading}>
+          Don't limit yourself, experiment with your cooking!
+        </Text>
+      </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter an ingredient..."
-        onChangeText={(text) => setIngredient(text)}
-        value={ingredient}
-      />
+      <View style={styles.content}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter an ingredient..."
+          onChangeText={(text) => setIngredient(text)}
+          value={ingredient}
+        />
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={findSubstitute}>
-        <Text style={styles.buttonText}>Find Substitute</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { transform: [{ scale: animation }] }]}
+          onPress={() => {
+            findSubstitute();
+            animateButton();
+          }}
+        >
+          <Text style={styles.buttonText}>Find Substitute</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -161,30 +97,42 @@ export default function Subs() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "white",
-
-    // justifyContent: "center",
-    // alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  backgroundImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    opacity: 0.5, // Adjust the opacity as needed
+  },
+  header: {
+    alignItems: "center",
+    paddingVertical: 40,
   },
   heading: {
-    fontSize: 20,
-    marginBottom: 16,
+    fontSize: 32,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#333",
+    marginBottom: 10,
   },
-  // input: {
-  //   height: 40,
-  //   width: 200,
-  //   borderColor: "gray",
-  //   borderWidth: 1,
-  //   marginBottom: 16,
-  //   paddingLeft: 8,
-  // },
+  subheading: {
+    fontSize: 18,
+    color: "gray",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
   input: {
-    width: "100%",
     height: 45,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#cccccc",
+    borderColor: "#ccc",
     borderRadius: 5,
     fontSize: 16,
     marginBottom: 10,
@@ -194,10 +142,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 5,
+    marginBottom: 20,
   },
   buttonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
     textAlign: "center",
   },
 });
